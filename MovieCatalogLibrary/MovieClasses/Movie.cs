@@ -14,21 +14,60 @@ namespace MovieCatalogLibrary
         public int mid { get; set; }
         public string imageLocation { get; set; }
         public double onlineRating { get; set; }
-        public double userRating { get; set; }
+        public double userRating = 0;
         public string description { get; set; }
         public List<MovieGenre> genres = new List<MovieGenre>();
         //Use this name to sort by, it will exclude "the" in a title.
         public string sortName { get; set; }
+        public int poster = 0;
 
+        /// <summary>
+        /// Use to parse a CSV string.
+        /// </summary>
+        /// <param name="toParse"></param>
         public Movie(string toParse)
         {
             setGenreCommaSeperated(toParse);
             setSortName();
         }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public Movie()
         {
             setSortName();
+        }
+
+        /// <summary>
+        /// Constructor to interface directly with the TMDB movie type.
+        /// </summary>
+        /// <param name="toSet"></param>
+        public Movie(TmdbMovie movie)
+        {
+            TMDBHelper tmdbHelper = new TMDBHelper();
+            TmdbMovieImages image = tmdbHelper.getImagesById(movie.id);
+
+            string posterLocation = "";
+
+            try
+            {
+                posterLocation = image.posters[0].file_path;
+            }
+
+            catch
+            {
+                posterLocation = "NONE";
+            }
+
+            description = movie.overview;
+            imageLocation = posterLocation;
+            mid = movie.id;
+            name = movie.title;
+            onlineRating = movie.vote_average;
+            userRating = 0.0;
+            year = movie.release_date;
+            genres = movie.genres;
         }
 
         public string getGenreCommaSeperated()

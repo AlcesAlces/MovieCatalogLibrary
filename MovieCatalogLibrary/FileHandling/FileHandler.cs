@@ -13,20 +13,37 @@ namespace MovieCatalogLibrary
     /// </summary>
     public class FileHandler
     {
+        /// <summary>
+        /// Use to determine which platform we're on, it should be noted that
+        /// the "Android" platform here is for Xamarin Android.
+        /// </summary>
         public enum platformType {Windows, Android};
 
         private platformType platform { get; set; }
 
+        /// <summary>
+        /// Need to use an instance of the FileHandler object for reasons such as:
+        /// Xamarin didn't like the static methods.
+        /// </summary>
+        /// <param name="type"></param>
         public FileHandler(platformType type = platformType.Windows)
         {
             platform = type;
         }
 
+        /// <summary>
+        /// Ensure that the user file exists.
+        /// </summary>
+        /// <returns></returns>
         public bool checkUserFileExists()
         {
             return File.Exists(getUserPath());
         }
 
+        /// <summary>
+        /// Returns the relative user path, the path will be different if you are using Xamarin.
+        /// </summary>
+        /// <returns>Returns Null if there's an error.</returns>
         public string getUserPath()
         {
             if (platform == platformType.Windows)
@@ -63,6 +80,9 @@ namespace MovieCatalogLibrary
             }
         }
 
+        /// <summary>
+        /// Creates a default user file.
+        /// </summary>
         public void createUserFile()
         {
             XmlTextWriter writer = new XmlTextWriter("userinfo.xml", System.Text.Encoding.UTF8);
@@ -82,6 +102,10 @@ namespace MovieCatalogLibrary
             writer.Close();
         }
 
+        /// <summary>
+        /// Add a single 'Movie' object to the XML file.
+        /// </summary>
+        /// <param name="movie">Pass in a fully populated movie object</param>
         public void addMovie(Movie movie)
         {
             XmlDocument xml = new XmlDocument();
@@ -139,6 +163,7 @@ namespace MovieCatalogLibrary
             xml.Save(getUserPath());
         }
 
+
         //Get all of the movies in the user's XML file.
         public List<Movie> allMoviesInXml()
         {
@@ -169,6 +194,11 @@ namespace MovieCatalogLibrary
             return moviesToReturn;
         }
 
+        /// <summary>
+        /// Returns true if the MID passed in already exists in the XML file.
+        /// </summary>
+        /// <param name="movieid">MID to check in the XML file</param>
+        /// <returns></returns>
         public bool isMovieDuplicate(int movieid)
         {
             XmlDocument doc = new XmlDocument();
@@ -187,6 +217,10 @@ namespace MovieCatalogLibrary
             return false;
         }
 
+        /// <summary>
+        /// Removes a collection of movies from the XML file.
+        /// </summary>
+        /// <param name="movies">Pass a list of fully populated movies.</param>
         public void removeMovies(List<Movie> movies)
         {
 

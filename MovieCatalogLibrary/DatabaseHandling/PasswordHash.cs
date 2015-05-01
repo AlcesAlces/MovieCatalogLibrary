@@ -33,7 +33,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestingApplicationForms
+namespace MovieCatalogLibrary.DatabaseHandling
 {
     class PasswordHash
     {
