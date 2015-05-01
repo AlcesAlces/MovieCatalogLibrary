@@ -8,20 +8,28 @@ using System.Threading.Tasks;
 
 namespace MovieCatalogLibrary.DatabaseHandling
 {
+
     /// <summary>
     /// The purpose of this class is to make the XML and the mongoDB play nice.
     /// </summary>
     static class MongoXmlLinker
     {
 
-        public static void AddMovie()
+        public async static Task AddMovies(List<Movie> toAdd, string UID)
         {
-
+            await AddMoviesDB(toAdd.Select(x => new CompactMovie(x)).ToList(), UID);
+            AddMoviesXMLFull(toAdd);
         }
 
-        public static void RemoveMovie()
+        public async static Task RemoveMovies(List<Movie> toRemove, string UID)
         {
+            FileHandler handler = new FileHandler();
+            handler.removeMovies(toRemove);
 
+            List<BsonDocument> tempRemoval = new List<BsonDocument>();
+            //Remove all movies in the list that are associated with the user.
+            tempRemoval.AddRange(toRemove.Select(x=>new BsonDocument().Add("uid",UID).Add("mid",x.mid)).ToList());
+            await MongoInteraction.RemoveMovies(tempRemoval);
         }
 
         /// <summary>
@@ -29,14 +37,46 @@ namespace MovieCatalogLibrary.DatabaseHandling
         /// </summary>
         /// <param name="listOfMoviesXML"></param>
         /// <param name="UID"></param>
-        private async static void AddMoviesDB(List<Movie> listOfMoviesXML, string UID)
+        private async static Task AddMoviesDB(List<CompactMovie> listOfMoviesXML, string UID)
         {
             List<BsonDocument> toAdd = (from b in listOfMoviesXML
                                         select new BsonDocument().Add("uid", UID).Add(
-                                        "mid", b.mid).Add("rate", b.userRating).Add("post", b.poster)
+                                        "mid", b.MID).Add("rate", b.userRating).Add("post", b.posterNum)
                                                 ).ToList();
 
             await MongoInteraction.AddMovies(toAdd);
+        }
+
+        /// <summary>
+        /// Add a list of CompactMovies (intended to be obtained from the DB).
+        /// It should be noted that this function will likely take a long time to execute.
+        /// </summary>
+        /// <param name="listOfMovies"></param>
+        private static void AddMoviesXML(List<CompactMovie> listOfMovies)
+        {
+            TMDBHelper helper = new TMDBHelper();
+            FileHandler handler = new FileHandler();
+
+            foreach(var x in listOfMovies)
+            {
+                Movie toAdd = new Movie(helper.getTmdbMovieById(x.MID));
+                handler.addMovie(toAdd);
+            }
+
+        }
+
+        /// <summary>
+        /// Full version of the add movies function.
+        /// </summary>
+        /// <param name="listOfMovies"></param>
+        private static void AddMoviesXMLFull(List<Movie> listOfMovies)
+        {
+            FileHandler handler = new FileHandler();
+
+            foreach(var x in listOfMovies)
+            {
+                handler.addMovie(x);
+            }
         }
 
         /// <summary>
@@ -61,7 +101,7 @@ namespace MovieCatalogLibrary.DatabaseHandling
 
                 else
                 {
-                    AddMoviesDB(listOfMoviesXML, UID);
+                    await AddMoviesDB(listOfMoviesXML.Select(x=>new CompactMovie(x)).ToList(), UID);
                 }
             }
 
@@ -86,7 +126,11 @@ namespace MovieCatalogLibrary.DatabaseHandling
                 }
             }
 
-            //TODO: Balance the DB and the XML
+            List<CompactMovie> dbBalance = FindDifferences(listOfMoviesDB,listOfMoviesXML.Select(x => new CompactMovie(x)).ToList());
+            await AddMoviesDB(dbBalance,UID);
+
+            List<CompactMovie> xmlBalance = FindDifferences(listOfMoviesXML.Select(x => new CompactMovie(x)).ToList(), listOfMoviesDB);
+            AddMoviesXML(xmlBalance);
         }
 
         /// <summary>

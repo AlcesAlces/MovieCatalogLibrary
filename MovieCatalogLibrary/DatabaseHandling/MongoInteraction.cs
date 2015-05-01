@@ -138,6 +138,16 @@ namespace MovieCatalogLibrary.DatabaseHandling
             await collection.InsertManyAsync(toAdd);
         }
 
+        public static async Task RemoveMovies(List<BsonDocument> toRemove)
+        {
+            var collection = CreateMongoConnection("movies");
+            foreach(var x in toRemove)
+            {
+                await collection.DeleteOneAsync(x);
+            }
+            
+        }
+
         #endregion
 
     }

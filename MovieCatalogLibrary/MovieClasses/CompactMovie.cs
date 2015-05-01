@@ -12,7 +12,15 @@ namespace MovieCatalogLibrary.MovieClasses
     public class CompactMovie
     {
         public int MID { get; set; }
-        public int userRating { get; set; }
+        public double userRating { get; set; }
         public int posterNum { get; set; }
+
+        public CompactMovie() { }
+        public CompactMovie(Movie toSet)
+        {
+            MID = toSet.mid;
+            userRating = toSet.userRating;
+            posterNum = toSet.poster;
+        }
     }
 }
