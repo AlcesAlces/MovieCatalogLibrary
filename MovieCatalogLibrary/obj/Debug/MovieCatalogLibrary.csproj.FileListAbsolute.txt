@@ -1,0 +1,11 @@
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Debug\Config.xml
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Debug\MovieCatalogLibrary.dll
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Debug\MovieCatalogLibrary.pdb
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Debug\MongoDB.Bson.dll
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Debug\MongoDB.Driver.Core.dll
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Debug\MongoDB.Driver.dll
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Debug\WatTmdb.dll
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Debug\MongoDB.Bson.xml
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Debug\MongoDB.Driver.xml
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\obj\Debug\MovieCatalogLibrary.dll
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\obj\Debug\MovieCatalogLibrary.pdb

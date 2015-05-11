@@ -106,7 +106,7 @@ namespace MovieCatalogLibrary
         /// Add a single 'Movie' object to the XML file.
         /// </summary>
         /// <param name="movie">Pass in a fully populated movie object</param>
-        public void addMovie(Movie movie)
+        public void addMovies(List<Movie> movieList)
         {
             XmlDocument xml = new XmlDocument();
             xml.Load(getUserPath());
@@ -114,52 +114,57 @@ namespace MovieCatalogLibrary
             XmlNode usersettings = xml.SelectSingleNode("usersettings");
             XmlNode movies = usersettings.SelectSingleNode("movies");
 
-            //New movie node
-            XmlNode newSub = xml.CreateNode(XmlNodeType.Element, "movie", null);
-
-            List<XmlNode> subList = new List<XmlNode>();
-
-            XmlNode nameSub = xml.CreateNode(XmlNodeType.Element, "name", null);
-            nameSub.InnerText = movie.name.ToString();
-            subList.Add(nameSub);
-            XmlNode genSub = xml.CreateNode(XmlNodeType.Element, "genres", null);
-            genSub.InnerText = movie.getGenreCommaSeperated();
-            subList.Add(genSub);
-            XmlNode yearSub = xml.CreateNode(XmlNodeType.Element, "year", null);
-            yearSub.InnerText = movie.year.ToString();
-            subList.Add(yearSub);
-            XmlNode imageSub = xml.CreateNode(XmlNodeType.Element, "image", null);
-            imageSub.InnerText = movie.imageLocation;
-            subList.Add(imageSub);
-            XmlNode movieidSub = xml.CreateNode(XmlNodeType.Element, "movieid", null);
-            movieidSub.InnerText = movie.mid.ToString();
-            subList.Add(movieidSub);
-            XmlNode ratingSub = xml.CreateNode(XmlNodeType.Element, "rating", null);
-            ratingSub.InnerText = movie.onlineRating.ToString();
-            subList.Add(ratingSub);
-            XmlNode descSub = xml.CreateNode(XmlNodeType.Element, "description", null);
-            descSub.InnerText = movie.description;
-            subList.Add(descSub);
-            XmlNode posterSub = xml.CreateNode(XmlNodeType.Element, "posternum", null);
-            posterSub.InnerText = "0";
-            subList.Add(posterSub);
-            XmlNode userratingSub = xml.CreateNode(XmlNodeType.Element, "userrating", null);
-            try
+            foreach (Movie movie in movieList)
             {
-                userratingSub.InnerText = movie.userRating.ToString();
-            }
-            catch (Exception e)
-            {
-                userratingSub.InnerText = "0";
-            }
-            subList.Add(userratingSub);
+                //New movie node
+                XmlNode newSub = xml.CreateNode(XmlNodeType.Element, "movie", null);
 
-            foreach (XmlNode node in subList)
-            {
-                newSub.AppendChild(node);
+                List<XmlNode> subList = new List<XmlNode>();
+
+                XmlNode nameSub = xml.CreateNode(XmlNodeType.Element, "name", null);
+                nameSub.InnerText = movie.name.ToString();
+                subList.Add(nameSub);
+                XmlNode genSub = xml.CreateNode(XmlNodeType.Element, "genres", null);
+                genSub.InnerText = movie.getGenreCommaSeperated();
+                subList.Add(genSub);
+                XmlNode yearSub = xml.CreateNode(XmlNodeType.Element, "year", null);
+                yearSub.InnerText = movie.year.ToString();
+                subList.Add(yearSub);
+                XmlNode imageSub = xml.CreateNode(XmlNodeType.Element, "image", null);
+                imageSub.InnerText = movie.imageLocation;
+                subList.Add(imageSub);
+                XmlNode movieidSub = xml.CreateNode(XmlNodeType.Element, "movieid", null);
+                movieidSub.InnerText = movie.mid.ToString();
+                subList.Add(movieidSub);
+                XmlNode ratingSub = xml.CreateNode(XmlNodeType.Element, "rating", null);
+                ratingSub.InnerText = movie.onlineRating.ToString();
+                subList.Add(ratingSub);
+                XmlNode descSub = xml.CreateNode(XmlNodeType.Element, "description", null);
+                descSub.InnerText = movie.description;
+                subList.Add(descSub);
+                XmlNode posterSub = xml.CreateNode(XmlNodeType.Element, "posternum", null);
+                posterSub.InnerText = "0";
+                subList.Add(posterSub);
+                XmlNode userratingSub = xml.CreateNode(XmlNodeType.Element, "userrating", null);
+                try
+                {
+                    userratingSub.InnerText = movie.userRating.ToString();
+                }
+                catch (Exception e)
+                {
+                    userratingSub.InnerText = "0";
+                }
+
+                subList.Add(userratingSub);
+
+                foreach (XmlNode node in subList)
+                {
+                    newSub.AppendChild(node);
+                }
+
+                movies.AppendChild(newSub);
             }
 
-            movies.AppendChild(newSub);
             xml.Save(getUserPath());
         }
 

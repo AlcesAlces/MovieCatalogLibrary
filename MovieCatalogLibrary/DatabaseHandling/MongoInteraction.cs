@@ -51,13 +51,65 @@ namespace MovieCatalogLibrary.DatabaseHandling
             //Note: You can look into nesting a BsonArray into one of the BsonDocuments, it's cool.
             BsonDocument toAdd = new BsonDocument()
             .Add("user", user)
-            .Add("password", PasswordHash.CreateHash(pass));
+            .Add("password", PasswordHash.CreateHash(pass)).Add("sync","False");
 
             await collection.InsertOneAsync(toAdd);
             
             return true;
         }
 
+        /// <summary>
+        /// Updates the user based on passed in parameters.
+        /// You should only be able to call this if you have a user created by that name.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="pass"></param>
+        /// <param name="sync"></param>
+        /// <returns></returns>
+        public async static Task UpdateUser(string user, bool sync)
+        {
+            var collection = CreateMongoConnection("users");
+            var users = await collection.Find(new BsonDocument("user", user)).ToListAsync();
+
+            if (users.Count != 0)
+            {
+                users[0].Set(3, sync.ToString());
+                var builder = Builders<BsonDocument>.Filter;
+                var filter = builder.Eq("user", user);
+                await collection.ReplaceOneAsync(filter, users[0]);
+            }
+        }
+
+        public async static Task<bool> GetUserSyncStatus(string user)
+        {
+            var collection = CreateMongoConnection("users");
+            var users = await collection.Find(new BsonDocument("user", user)).ToListAsync();
+
+            if(users.Count != 0)
+            {
+                if(users[0].Values.ElementAt(3).ToString().ToLower() == "true")
+                {
+                    return true;
+                }
+                
+                else
+                {
+                    return false;
+                }
+            }
+
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the user's information is correct.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="pass"></param>
+        /// <returns></returns>
         public static async Task<bool> VerifyCredentials(string user, string pass)
         {
             var collection = CreateMongoConnection("users");
@@ -76,6 +128,11 @@ namespace MovieCatalogLibrary.DatabaseHandling
             }
         }
 
+        /// <summary>
+        /// Retrieve the user ID by their name.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public static async Task<string> UserIdByName(string user)
         {
             var collection = CreateMongoConnection("users");
@@ -138,6 +195,11 @@ namespace MovieCatalogLibrary.DatabaseHandling
             await collection.InsertManyAsync(toAdd);
         }
 
+        /// <summary>
+        /// Removes a list of movies from the database.
+        /// </summary>
+        /// <param name="toRemove"></param>
+        /// <returns></returns>
         public static async Task RemoveMovies(List<BsonDocument> toRemove)
         {
             var collection = CreateMongoConnection("movies");

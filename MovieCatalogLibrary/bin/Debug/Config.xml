@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<config>
+  <defaultConnection Server="mongodb://alces2:stimperman@ds045531.mongolab.com:45531/alces"/>
+</config>

@@ -12,7 +12,7 @@ namespace MovieCatalogLibrary.DatabaseHandling
     /// <summary>
     /// The purpose of this class is to make the XML and the mongoDB play nice.
     /// </summary>
-    static class MongoXmlLinker
+    public static class MongoXmlLinker
     {
 
         public async static Task AddMovies(List<Movie> toAdd, string UID)
@@ -57,12 +57,14 @@ namespace MovieCatalogLibrary.DatabaseHandling
             TMDBHelper helper = new TMDBHelper();
             FileHandler handler = new FileHandler();
 
-            foreach(var x in listOfMovies)
+            List<Movie> toAdd = new List<Movie>();
+
+            foreach (var x in listOfMovies)
             {
-                Movie toAdd = new Movie(helper.getTmdbMovieById(x.MID));
-                handler.addMovie(toAdd);
+                toAdd.Add(new Movie(helper.getTmdbMovieById(x.MID)));
             }
 
+            handler.addMovies(toAdd);
         }
 
         /// <summary>
@@ -73,17 +75,14 @@ namespace MovieCatalogLibrary.DatabaseHandling
         {
             FileHandler handler = new FileHandler();
 
-            foreach(var x in listOfMovies)
-            {
-                handler.addMovie(x);
-            }
+            handler.addMovies(listOfMovies);
         }
 
         /// <summary>
         /// Use to make sure the user files are in line.
         /// </summary>
         /// <param name="UID"></param>
-        public async static void SyncUserFiles(string UID)
+        public async static Task SyncUserFiles(string UID)
         {
             List<CompactMovie> listOfMoviesDB = await MongoInteraction.AllMoviesByUser(UID);
             FileHandler tmpFileHandler = new FileHandler();
@@ -106,9 +105,9 @@ namespace MovieCatalogLibrary.DatabaseHandling
             }
 
             //The user has no entries in their XML
-            if(listOfMoviesXML.Count == 0)
+            else if (listOfMoviesXML.Count == 0)
             {
-                if(listOfMoviesDB.Count == 0)
+                if (listOfMoviesDB.Count == 0)
                 {
                     //The user doesn't have any movies in their DB.
                     return;
@@ -118,19 +117,31 @@ namespace MovieCatalogLibrary.DatabaseHandling
                 {
                     TMDBHelper helper = new TMDBHelper();
                     FileHandler handler = new FileHandler();
-                    foreach(var item in listOfMoviesDB)
+                    List<Movie> toAdd = new List<Movie>();
+
+                    foreach (var item in listOfMoviesDB)
                     {
-                        Movie toAdd = new Movie(helper.getTmdbMovieById(item.MID));
-                        handler.addMovie(toAdd);
+                        toAdd.Add(new Movie(helper.getTmdbMovieById(item.MID)));
                     }
+
+                    handler.addMovies(toAdd);
                 }
             }
 
-            List<CompactMovie> dbBalance = FindDifferences(listOfMoviesDB,listOfMoviesXML.Select(x => new CompactMovie(x)).ToList());
-            await AddMoviesDB(dbBalance,UID);
+            else
+            {
+                List<CompactMovie> dbBalance = FindDifferences(listOfMoviesDB, listOfMoviesXML.Select(x => new CompactMovie(x)).ToList());
+                if (dbBalance.Count != 0)
+                {
+                    await AddMoviesDB(dbBalance, UID);
+                }
 
-            List<CompactMovie> xmlBalance = FindDifferences(listOfMoviesXML.Select(x => new CompactMovie(x)).ToList(), listOfMoviesDB);
-            AddMoviesXML(xmlBalance);
+                List<CompactMovie> xmlBalance = FindDifferences(listOfMoviesXML.Select(x => new CompactMovie(x)).ToList(), listOfMoviesDB);
+                if (xmlBalance.Count != 0)
+                {
+                    AddMoviesXML(xmlBalance);
+                }    
+            }
         }
 
         /// <summary>
