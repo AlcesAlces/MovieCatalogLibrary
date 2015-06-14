@@ -91,14 +91,19 @@ namespace MovieCatalogLibrary
         //checks the integrity of the user file.
         public void verifyUserFile()
         {
+
+            log.Debug("Checking to see if user file exists...");
+
             //User file does exist
             if (checkUserFileExists())
             {
                 //Verify that the contents of the user's file follow the guidelines.
+                log.Debug("User file does exist, that's a good thing");
             }
 
             else
             {
+                log.Debug("User file doesn't exist, I should be creating the user file, now!");
                 //Creates a blank template for the user's file.
                 createUserFile();
             }
@@ -133,6 +138,12 @@ namespace MovieCatalogLibrary
         public void addMovies(List<Movie> movieList)
         {
             XmlDocument xml = new XmlDocument();
+
+            if(!File.Exists(getUserPath()))
+            {
+                createUserFile();
+            }
+
             xml.Load(getUserPath());
 
             XmlNode usersettings = xml.SelectSingleNode("usersettings");
@@ -242,20 +253,21 @@ namespace MovieCatalogLibrary
                         {
                             name = item.name,
                             description = item.description,
-                            genresCSV = item.genres,
-                            mid = Int32.Parse(item.movieid),
-                            userRating = double.Parse(item.userrating),
-                            onlineRating = double.Parse(item.rating),
-                            poster = Int32.Parse(item.posternum),
+                            genresCSV = item.genresCSV,
+                            mid = item.mid,
+                            userRating = item.userRating,
+                            onlineRating = item.onlineRating,
+                            poster = item.poster,
                             year = item.year,
-                            imageLocation = item.image
+                            imageLocation = item.imageLocation
                         };
 
-                    listToAdd.Add(toAdd);
+                    if(!isMovieDuplicate(toAdd.mid))
+                    {
+                        listToAdd.Add(toAdd);
+                    }
                 }
-
                 verifyUserFile();
-                log.Debug("Attempting to send " + listToAdd.Count + " entries to XML file");
                 addMovies(listToAdd);
             }
                 

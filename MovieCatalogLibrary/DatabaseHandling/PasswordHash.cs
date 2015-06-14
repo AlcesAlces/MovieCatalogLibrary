@@ -35,7 +35,7 @@ using System.Threading.Tasks;
 
 namespace MovieCatalogLibrary.DatabaseHandling
 {
-    class PasswordHash
+    public class PasswordHash
     {
         // The following constants may be changed without breaking existing hashes.
         public const int SALT_BYTE_SIZE = 24;
@@ -45,6 +45,11 @@ namespace MovieCatalogLibrary.DatabaseHandling
         public const int ITERATION_INDEX = 0;
         public const int SALT_INDEX = 1;
         public const int PBKDF2_INDEX = 2;
+
+        public string CreateHashNonStatic(string pw)
+        {
+            return CreateHash(pw);
+        }
 
         /// <summary>
         /// Creates a salted PBKDF2 hash of the password.

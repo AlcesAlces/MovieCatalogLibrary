@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MovieCatalogLibrary.MovieClasses;
+using SocketIOClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,28 +9,26 @@ using System.Threading.Tasks;
 
 namespace MovieCatalogLibrary.DatabaseHandling
 {
-
     /// <summary>
     /// The purpose of this class is to make the XML and the mongoDB play nice.
     /// </summary>
     public static class MongoXmlLinker
     {
 
-        public async static Task AddMovies(List<Movie> toAdd, string UID)
+        static Client socket;
+
+        public async static Task AddMovies(List<Movie> toAdd, string UID, Client socket)
         {
-            await AddMoviesDB(toAdd.Select(x => new CompactMovie(x)).ToList(), UID);
+            toAdd.ForEach(x => x.genresCSV = x.getGenreCommaSeperated());
+            await AddMoviesDB(toAdd, UID, socket);
             AddMoviesXMLFull(toAdd);
         }
 
-        public async static Task RemoveMovies(List<Movie> toRemove, string UID)
+        public async static Task RemoveMovies(List<Movie> toRemove, string UID, Client socket)
         {
             FileHandler handler = new FileHandler();
             handler.removeMovies(toRemove);
-
-            List<BsonDocument> tempRemoval = new List<BsonDocument>();
-            //Remove all movies in the list that are associated with the user.
-            tempRemoval.AddRange(toRemove.Select(x=>new BsonDocument().Add("uid",UID).Add("mid",x.mid)).ToList());
-            await MongoInteraction.RemoveMovies(tempRemoval);
+            await MongoInteraction.RemoveMovies(toRemove, socket);
         }
 
         /// <summary>
@@ -37,14 +36,9 @@ namespace MovieCatalogLibrary.DatabaseHandling
         /// </summary>
         /// <param name="listOfMoviesXML"></param>
         /// <param name="UID"></param>
-        private async static Task AddMoviesDB(List<CompactMovie> listOfMoviesXML, string UID)
+        private async static Task AddMoviesDB(List<Movie> listOfMoviesXML, string UID, Client socket)
         {
-            List<BsonDocument> toAdd = (from b in listOfMoviesXML
-                                        select new BsonDocument().Add("uid", UID).Add(
-                                        "mid", b.MID).Add("rate", b.userRating).Add("post", b.posterNum)
-                                                ).ToList();
-
-            await MongoInteraction.AddMovies(toAdd);
+            await MongoInteraction.AddMovies(listOfMoviesXML, socket);
         }
 
         /// <summary>
@@ -52,19 +46,11 @@ namespace MovieCatalogLibrary.DatabaseHandling
         /// It should be noted that this function will likely take a long time to execute.
         /// </summary>
         /// <param name="listOfMovies"></param>
-        private static void AddMoviesXML(List<CompactMovie> listOfMovies)
+        private static void AddMoviesXML(List<Movie> listOfMovies)
         {
-            TMDBHelper helper = new TMDBHelper();
             FileHandler handler = new FileHandler();
 
-            List<Movie> toAdd = new List<Movie>();
-
-            foreach (var x in listOfMovies)
-            {
-                toAdd.Add(new Movie(helper.getTmdbMovieById(x.MID)));
-            }
-
-            handler.addMovies(toAdd);
+            handler.addMovies(listOfMovies);
         }
 
         /// <summary>
@@ -82,9 +68,9 @@ namespace MovieCatalogLibrary.DatabaseHandling
         /// Use to make sure the user files are in line.
         /// </summary>
         /// <param name="UID"></param>
-        public async static Task SyncUserFiles(string UID)
+        public async static Task SyncUserFiles(string UID, Client socket)
         {
-            List<CompactMovie> listOfMoviesDB = await MongoInteraction.AllMoviesByUser(UID);
+            List<Movie> listOfMoviesDB = await MongoInteraction.AllMoviesByUser(UID, socket);
             FileHandler tmpFileHandler = new FileHandler();
             List<Movie> listOfMoviesXML = tmpFileHandler.allMoviesInXml();
 
@@ -100,7 +86,7 @@ namespace MovieCatalogLibrary.DatabaseHandling
 
                 else
                 {
-                    await AddMoviesDB(listOfMoviesXML.Select(x=>new CompactMovie(x)).ToList(), UID);
+                    await AddMoviesDB(listOfMoviesXML, UID, socket);
                 }
             }
 
@@ -121,7 +107,7 @@ namespace MovieCatalogLibrary.DatabaseHandling
 
                     foreach (var item in listOfMoviesDB)
                     {
-                        toAdd.Add(new Movie(helper.getTmdbMovieById(item.MID)));
+                        toAdd.Add(new Movie(helper.getTmdbMovieById(item.mid)));
                     }
 
                     handler.addMovies(toAdd);
@@ -130,13 +116,13 @@ namespace MovieCatalogLibrary.DatabaseHandling
 
             else
             {
-                List<CompactMovie> dbBalance = FindDifferences(listOfMoviesDB, listOfMoviesXML.Select(x => new CompactMovie(x)).ToList());
+                List<Movie> dbBalance = FindDifferences(listOfMoviesDB, listOfMoviesXML);
                 if (dbBalance.Count != 0)
                 {
-                    await AddMoviesDB(dbBalance, UID);
+                    await AddMoviesDB(dbBalance, UID, socket);
                 }
 
-                List<CompactMovie> xmlBalance = FindDifferences(listOfMoviesXML.Select(x => new CompactMovie(x)).ToList(), listOfMoviesDB);
+                List<Movie> xmlBalance = FindDifferences(listOfMoviesXML, listOfMoviesDB);
                 if (xmlBalance.Count != 0)
                 {
                     AddMoviesXML(xmlBalance);
@@ -151,14 +137,14 @@ namespace MovieCatalogLibrary.DatabaseHandling
         /// <param name="first"></param>
         /// <param name="second"></param>
         /// <returns></returns>
-        private static List<CompactMovie> FindDifferences(List<CompactMovie> first, List<CompactMovie> second)
+        private static List<Movie> FindDifferences(List<Movie> first, List<Movie> second)
         {
-            List<CompactMovie> differences = new List<CompactMovie>();
+            List<Movie> differences = new List<Movie>();
 
 
             foreach(var b in second)
             {
-                if (first.Where(x => x.MID == b.MID).Count() == 0)
+                if (first.Where(x => x.mid == b.mid).Count() == 0)
                 {
                     differences.Add(b);
                 }
