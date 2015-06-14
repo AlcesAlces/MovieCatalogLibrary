@@ -1,0 +1,14 @@
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\Config.xml
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\MovieCatalogLibrary.dll.config
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\MovieCatalogLibrary.dll
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\MovieCatalogLibrary.pdb
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\log4net.dll
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\MongoDB.Bson.dll
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\MongoDB.Driver.Core.dll
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\MongoDB.Driver.dll
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\WatTmdb.dll
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\log4net.xml
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\MongoDB.Bson.xml
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\MongoDB.Driver.xml
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\obj\Release\MovieCatalogLibrary.dll
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\obj\Release\MovieCatalogLibrary.pdb

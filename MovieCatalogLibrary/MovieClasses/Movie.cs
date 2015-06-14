@@ -17,6 +17,7 @@ namespace MovieCatalogLibrary
         public double userRating = 0;
         public string description { get; set; }
         public List<MovieGenre> genres = new List<MovieGenre>();
+        public string genresCSV { get; set; }
         //Use this name to sort by, it will exclude "the" in a title.
         public string sortName { get; set; }
         public int poster = 0;
@@ -74,18 +75,27 @@ namespace MovieCatalogLibrary
         {
             string toReturn = "";
 
-            foreach (MovieGenre genre in genres)
+            if (genres.Count == 0)
             {
-                toReturn += genre.name + ",";
+                return genresCSV;
             }
 
-            if (toReturn == "")
-            {
-                return toReturn;
-            }
             else
             {
-                return toReturn.Substring(0, toReturn.Count() - 1);
+
+                foreach (MovieGenre genre in genres)
+                {
+                    toReturn += genre.name + ",";
+                }
+
+                if (toReturn == "")
+                {
+                    return toReturn;
+                }
+                else
+                {
+                    return toReturn.Substring(0, toReturn.Count() - 1);
+                }
             }
         }
 

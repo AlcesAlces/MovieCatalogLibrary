@@ -1,18 +1,25 @@
-﻿using System;
+﻿using log4net;
+using log4net.Config;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
 namespace MovieCatalogLibrary
 {
+
     /// <summary>
     /// Contains all functions which deal with the saving and loading of user files
     /// </summary>
     public class FileHandler
     {
+
+        log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        
         /// <summary>
         /// Use to determine which platform we're on, it should be noted that
         /// the "Android" platform here is for Xamarin Android.
@@ -29,6 +36,23 @@ namespace MovieCatalogLibrary
         public FileHandler(platformType type = platformType.Windows)
         {
             platform = type;
+        }
+
+        public FileHandler()
+        {
+            platform = platformType.Windows;
+            LoadLoggerConfig();
+        }
+
+        private static void LoadLoggerConfig()
+        {
+            FileInfo file = new FileInfo("MovieCatalogLibrary.dll.config");
+
+            if(file.Exists)
+            {
+                log4net.Config.XmlConfigurator.Configure(file);
+            }
+
         }
 
         /// <summary>
@@ -197,6 +221,94 @@ namespace MovieCatalogLibrary
             moviesToReturn = moviesToReturn.OrderBy(x => x.sortName).ToList();
 
             return moviesToReturn;
+        }
+
+        /// <summary>
+        /// Acts as an interpreter if you're using this library from node.js (using edge)
+        /// </summary>
+        /// <param name="movies"></param>
+        /// <returns></returns>
+        public async Task<object> addMoviesNode(dynamic movies)
+        {
+
+            string errorString = "Everything is fine.";
+            try
+            {
+                List<Movie> listToAdd = new List<Movie>();
+
+                foreach (var item in movies.payload)
+                {
+                    Movie toAdd = new Movie()
+                        {
+                            name = item.name,
+                            description = item.description,
+                            genresCSV = item.genres,
+                            mid = Int32.Parse(item.movieid),
+                            userRating = double.Parse(item.userrating),
+                            onlineRating = double.Parse(item.rating),
+                            poster = Int32.Parse(item.posternum),
+                            year = item.year,
+                            imageLocation = item.image
+                        };
+
+                    listToAdd.Add(toAdd);
+                }
+
+                verifyUserFile();
+                log.Debug("Attempting to send " + listToAdd.Count + " entries to XML file");
+                addMovies(listToAdd);
+            }
+                
+            catch(Exception ex)
+            {
+                log.Error("Problem encountered: " + ex.ToString());
+                //Do something with the exception
+            }
+
+            return new { messagePayload = errorString };
+        }
+
+        /// <summary>
+        /// Returns an object that mimics type Movie, but is an abstract class (for json serialization).
+        /// </summary>
+        /// <param name="mid">List of movie IDs</param>
+        /// <returns></returns>
+        public async Task<object> getMoviesNode(dynamic mid)
+        {
+            List<object> toReturn = new List<object>();
+
+            try
+            {
+                foreach (int item in mid.payload)
+                {
+                    foreach (var movie in allMoviesInXml())
+                    {
+                        if (item == movie.mid)
+                        {
+                            toReturn.Add(new
+                                {
+                                    name = movie.name,
+                                    description = movie.description,
+                                    genres = movie.genresCSV,
+                                    movieid = movie.mid,
+                                    userrating = movie.userRating,
+                                    rating = movie.onlineRating,
+                                    posternum = movie.poster,
+                                    year = movie.year,
+                                    image = movie.imageLocation
+                                });
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Got error: " + ex.ToString());
+            }
+
+            //return new { stuff = toReturn };
+            return new {stuff = toReturn};
         }
 
         /// <summary>
