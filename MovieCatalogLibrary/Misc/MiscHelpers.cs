@@ -8,27 +8,40 @@ namespace MovieCatalogLibrary.Misc
 {
     public static class MiscHelpers
     {
+        /// <summary>
+        /// Creates a movie object from a dynamic object. Expecting a serialized JSON object
+        /// plz don't pass bad stuff in here. You might end the world.
+        /// </summary>
+        /// <param name="movies">Serialized JSON object. Follow the structure in the method.</param>
+        /// <returns></returns>
         public static List<Movie> moivesFromDynamic(dynamic movies)
         {
 
             List<Movie> listToAdd = new List<Movie>();
-
-            foreach (var item in movies.payload)
+            try
             {
-                Movie toAdd = new Movie()
+                foreach (var item in movies.payload.stuff)
                 {
-                    name = item.name,
-                    description = item.description,
-                    genresCSV = item.genres,
-                    mid = Int32.Parse(item.movieid),
-                    userRating = double.Parse(item.userrating),
-                    onlineRating = double.Parse(item.rating),
-                    poster = Int32.Parse(item.posternum),
-                    year = item.year,
-                    imageLocation = item.image
-                };
 
-                listToAdd.Add(toAdd);
+                    Movie toAdd = new Movie()
+                    {
+                        name = item.name.Value,
+                        description = item.description.Value,
+                        genresCSV = item.genres.Value,
+                        mid = Int32.Parse(item.movieid.Value.ToString()),
+                        userRating = double.Parse(item.userrating.Value.ToString()),
+                        onlineRating = double.Parse(item.rating.Value.ToString()),
+                        poster = Int32.Parse(item.posternum.Value.ToString()),
+                        year = item.year.Value,
+                        imageLocation = item.image.Value
+                    };
+
+                    listToAdd.Add(toAdd);
+                }
+            }
+            catch(Exception ex)
+            {
+                int i = 0;
             }
 
             return listToAdd;

@@ -11,6 +11,7 @@ namespace MovieCatalogLibrary.MovieClasses
     /// </summary>
     public class CompactMovie
     {
+        public string userId = "";
         public int MID { get; set; }
         public double userRating { get; set; }
         public int posterNum { get; set; }

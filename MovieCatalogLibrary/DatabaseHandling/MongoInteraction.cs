@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MovieCatalogLibrary.DatabaseHandling
@@ -65,22 +66,33 @@ namespace MovieCatalogLibrary.DatabaseHandling
         /// <param name="user"></param>
         /// <param name="pass"></param>
         /// <returns></returns>
-        public static async Task<bool> VerifyCredentials(string user, string pass, Client socket)
+        public static async Task<string> VerifyCredentials(string user, string pass, Client socket)
         {
 
             bool? auth = null;
+            string uid = "";
+
+            socket.On("disconnect", (fn) =>
+            {
+                auth = false;
+            });
 
             socket.On("authenticate", (fn) =>
                 {
-                    //Something
-                    if (fn.Json.Args[0].ToString() == "authenitcated")
+
+                    string authMessage = fn.Json.Args[0].ToString().Split(' ')[0];
+                    uid = fn.Json.Args[0].ToString().Split(' ')[1];
+
+                    if (authMessage == "authenitcated")
                     {
                         auth = true;
+                        
                     }
                     else
                     {
                         auth = false;
                     }
+
                 });
 
             if (socket.IsConnected)
@@ -88,9 +100,35 @@ namespace MovieCatalogLibrary.DatabaseHandling
                 socket.Emit("authenticate", new { user = user, password = pass });
             }
 
-            while (auth == null) ;
+            TimeoutCounter counter = new TimeoutCounter();
 
-            return (bool)auth;
+
+            var thread = new Thread(
+                () =>
+                {
+                    auth = counter.start(Global.serverTimeout);
+                });
+
+            thread.Start();
+
+
+            while (auth == null) ;
+            counter.Stop();
+
+            if(counter.timeout)
+            {
+                throw new Exception("TIMEOUT");
+            }
+
+            if (auth == true)
+            {
+                return uid;
+            }
+
+            else
+            {
+                return "";
+            }
         }
 
         /// <summary>
@@ -116,6 +154,44 @@ namespace MovieCatalogLibrary.DatabaseHandling
         //    }
         //}
 
+        public static async Task<bool> doesUserExist(string user, Client socket)
+        {
+
+            bool? exist = null;
+
+            if(socket.IsConnected)
+            {
+                socket.On("does_user_exist", (fn) =>
+                    {
+                        exist = fn.Json.Args[0] == "false" ? false : true;
+                    });
+
+                socket.Emit("does_user_exist", user);
+            }
+
+            TimeoutCounter counter = new TimeoutCounter();
+
+
+            var thread = new Thread(
+                () =>
+                {
+                    exist = counter.start(Global.serverTimeout);
+                });
+
+            thread.Start();
+
+
+            while (exist == null) ;
+            counter.Stop();
+
+            if (counter.timeout)
+            {
+                throw new Exception("TIMEOUT");
+            }
+
+            return (bool)exist;
+        }
+
         #endregion
 
         #region Movie Functions
@@ -129,13 +205,35 @@ namespace MovieCatalogLibrary.DatabaseHandling
         {
 
             List<Movie> toReturn = null;
+            bool? timeout = false;
 
-            socket.On("movie_collection_result", (fn) =>
+            socket.On("request_movie_information", (fn) =>
                 {
-                    toReturn = MiscHelpers.Equals(fn.Json.Args[0]);
+                    toReturn = MiscHelpers.moivesFromDynamic(fn.Json.Args[0]);
                 });
 
-            while (toReturn == null) ;
+            socket.Emit("request_movie_information", "plz");
+
+
+            TimeoutCounter counter = new TimeoutCounter();
+
+
+            var thread = new Thread(
+                () =>
+                {
+                    timeout = counter.start(Global.serverTimeout*3);
+                });
+
+            thread.Start();
+
+
+            while (toReturn == null && (bool)!timeout) ;
+            counter.Stop();
+
+            if (counter.timeout)
+            {
+                throw new Exception("TIMEOUT");
+            }
             
             return toReturn;
         }
@@ -144,11 +242,13 @@ namespace MovieCatalogLibrary.DatabaseHandling
         /// Add a range of movies tot he database.
         /// </summary>
         /// <param name="toAdd"></param>
-        public static async Task AddMovies(List<Movie> toAdd, Client socket)
+        public static async Task AddMovies(string uid, List<Movie> toAdd, Client socket)
         {   
             if(socket.IsConnected)
             {
-                socket.Emit("add_movie_collection", toAdd);
+                List<CompactMovie> compact = toAdd.Select(x => new CompactMovie(x)).ToList();
+                compact.ForEach(x => x.userId = uid);
+                socket.Emit("add_movie_collection", new { full = toAdd, compact = compact });
             }
         }
 
@@ -160,7 +260,6 @@ namespace MovieCatalogLibrary.DatabaseHandling
         public static async Task RemoveMovies(List<Movie> toRemove, Client socket)
         {
             socket.Emit("remove_movie_collection", toRemove);
-            
         }
 
         #endregion

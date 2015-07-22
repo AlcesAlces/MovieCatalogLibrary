@@ -38,7 +38,7 @@ namespace MovieCatalogLibrary.DatabaseHandling
         /// <param name="UID"></param>
         private async static Task AddMoviesDB(List<Movie> listOfMoviesXML, string UID, Client socket)
         {
-            await MongoInteraction.AddMovies(listOfMoviesXML, socket);
+            await MongoInteraction.AddMovies(UID,listOfMoviesXML, socket);
         }
 
         /// <summary>
@@ -105,12 +105,7 @@ namespace MovieCatalogLibrary.DatabaseHandling
                     FileHandler handler = new FileHandler();
                     List<Movie> toAdd = new List<Movie>();
 
-                    foreach (var item in listOfMoviesDB)
-                    {
-                        toAdd.Add(new Movie(helper.getTmdbMovieById(item.mid)));
-                    }
-
-                    handler.addMovies(toAdd);
+                    handler.addMovies(listOfMoviesDB);
                 }
             }
 

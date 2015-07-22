@@ -75,7 +75,9 @@
     <Compile Include="DatabaseHandling\MongoXmlLinker.cs" />
     <Compile Include="FileHandling\FileHandler.cs" />
     <Compile Include="FileHandling\ImageHandler.cs" />
+    <Compile Include="Global.cs" />
     <Compile Include="Misc\MiscHelpers.cs" />
+    <Compile Include="Misc\TimeoutCounter.cs" />
     <Compile Include="Misc\XmlHandler.cs" />
     <Compile Include="MovieClasses\CompactMovie.cs" />
     <Compile Include="MovieClasses\IMovie.cs" />
