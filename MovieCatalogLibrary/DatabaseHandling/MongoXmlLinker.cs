@@ -17,11 +17,11 @@ namespace MovieCatalogLibrary.DatabaseHandling
 
         static Client socket;
 
-        public async static Task AddMovies(List<Movie> toAdd, string UID, Client socket)
+        public async static Task AddMovies(List<Movie> toAdd, string UID, Client socket, FileHandler.platformType platform = FileHandler.platformType.Windows)
         {
             toAdd.ForEach(x => x.genresCSV = x.getGenreCommaSeperated());
             await AddMoviesDB(toAdd, UID, socket);
-            AddMoviesXMLFull(toAdd);
+            AddMoviesXMLFull(toAdd, platform);
         }
 
         public async static Task RemoveMovies(List<Movie> toRemove, string UID, Client socket)
@@ -46,9 +46,9 @@ namespace MovieCatalogLibrary.DatabaseHandling
         /// It should be noted that this function will likely take a long time to execute.
         /// </summary>
         /// <param name="listOfMovies"></param>
-        private static void AddMoviesXML(List<Movie> listOfMovies)
+        private static void AddMoviesXML(List<Movie> listOfMovies, FileHandler.platformType platform)
         {
-            FileHandler handler = new FileHandler();
+            FileHandler handler = new FileHandler(platform);
 
             handler.addMovies(listOfMovies);
         }
@@ -57,7 +57,7 @@ namespace MovieCatalogLibrary.DatabaseHandling
         /// Full version of the add movies function.
         /// </summary>
         /// <param name="listOfMovies"></param>
-        private static void AddMoviesXMLFull(List<Movie> listOfMovies)
+        private static void AddMoviesXMLFull(List<Movie> listOfMovies, FileHandler.platformType platform)
         {
             FileHandler handler = new FileHandler();
 
@@ -68,10 +68,10 @@ namespace MovieCatalogLibrary.DatabaseHandling
         /// Use to make sure the user files are in line.
         /// </summary>
         /// <param name="UID"></param>
-        public async static Task SyncUserFiles(string UID, Client socket)
+        public async static Task SyncUserFiles(string UID, Client socket, FileHandler.platformType platform = FileHandler.platformType.Windows)
         {
             List<Movie> listOfMoviesDB = await MongoInteraction.AllMoviesByUser(UID, socket);
-            FileHandler tmpFileHandler = new FileHandler();
+            FileHandler tmpFileHandler = new FileHandler(platform);
             List<Movie> listOfMoviesXML = tmpFileHandler.allMoviesInXml();
 
             //The user has no entries on the DB
@@ -102,7 +102,7 @@ namespace MovieCatalogLibrary.DatabaseHandling
                 else
                 {
                     TMDBHelper helper = new TMDBHelper();
-                    FileHandler handler = new FileHandler();
+                    FileHandler handler = new FileHandler(platform);
                     List<Movie> toAdd = new List<Movie>();
 
                     handler.addMovies(listOfMoviesDB);
@@ -120,7 +120,7 @@ namespace MovieCatalogLibrary.DatabaseHandling
                 List<Movie> xmlBalance = FindDifferences(listOfMoviesXML, listOfMoviesDB);
                 if (xmlBalance.Count != 0)
                 {
-                    AddMoviesXML(xmlBalance);
+                    AddMoviesXML(xmlBalance, platform);
                 }    
             }
         }

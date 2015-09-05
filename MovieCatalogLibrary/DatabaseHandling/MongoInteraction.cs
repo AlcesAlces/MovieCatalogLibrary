@@ -97,7 +97,7 @@ namespace MovieCatalogLibrary.DatabaseHandling
 
             if (socket.IsConnected)
             {
-                socket.Emit("authenticate", new { user = user, password = pass });
+                socket.Emit("authenticate", new { user = user.ToLower(), password = pass.ToLower() });
             }
 
             TimeoutCounter counter = new TimeoutCounter();
@@ -113,6 +113,7 @@ namespace MovieCatalogLibrary.DatabaseHandling
 
 
             while (auth == null) ;
+            thread.Abort();
             counter.Stop();
 
             if(counter.timeout)
@@ -183,6 +184,7 @@ namespace MovieCatalogLibrary.DatabaseHandling
 
             while (exist == null) ;
             counter.Stop();
+            thread.Abort();
 
             if (counter.timeout)
             {
@@ -221,7 +223,7 @@ namespace MovieCatalogLibrary.DatabaseHandling
             var thread = new Thread(
                 () =>
                 {
-                    timeout = counter.start(Global.serverTimeout*3);
+                    timeout = counter.start(Global.serverTimeout*10);
                 });
 
             thread.Start();
@@ -229,6 +231,7 @@ namespace MovieCatalogLibrary.DatabaseHandling
 
             while (toReturn == null && (bool)!timeout) ;
             counter.Stop();
+            thread.Abort();
 
             if (counter.timeout)
             {

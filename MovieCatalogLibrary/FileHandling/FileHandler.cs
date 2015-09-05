@@ -1,6 +1,4 @@
-﻿using log4net;
-using log4net.Config;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,7 +16,7 @@ namespace MovieCatalogLibrary
     public class FileHandler
     {
 
-        log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        //log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         
         /// <summary>
         /// Use to determine which platform we're on, it should be noted that
@@ -50,7 +48,7 @@ namespace MovieCatalogLibrary
 
             if(file.Exists)
             {
-                log4net.Config.XmlConfigurator.Configure(file);
+                //log4net.Config.XmlConfigurator.Configure(file);
             }
 
         }
@@ -92,18 +90,18 @@ namespace MovieCatalogLibrary
         public void verifyUserFile()
         {
 
-            log.Debug("Checking to see if user file exists...");
+            //log.Debug("Checking to see if user file exists...");
 
             //User file does exist
             if (checkUserFileExists())
             {
                 //Verify that the contents of the user's file follow the guidelines.
-                log.Debug("User file does exist, that's a good thing");
+                //log.Debug("User file does exist, that's a good thing");
             }
 
             else
             {
-                log.Debug("User file doesn't exist, I should be creating the user file, now!");
+                //log.Debug("User file doesn't exist, I should be creating the user file, now!");
                 //Creates a blank template for the user's file.
                 createUserFile();
             }
@@ -273,7 +271,7 @@ namespace MovieCatalogLibrary
                 
             catch(Exception ex)
             {
-                log.Error("Problem encountered: " + ex.ToString());
+                //log.Error("Problem encountered: " + ex.ToString());
                 //Do something with the exception
             }
 
@@ -316,7 +314,7 @@ namespace MovieCatalogLibrary
 
             catch (Exception ex)
             {
-                log.Error("Got error: " + ex.ToString());
+                //log.Error("Got error: " + ex.ToString());
             }
 
             //return new { stuff = toReturn };
