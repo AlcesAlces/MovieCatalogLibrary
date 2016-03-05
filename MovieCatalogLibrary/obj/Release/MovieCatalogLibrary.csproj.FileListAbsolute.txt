@@ -16,3 +16,5 @@ E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\SocketIOClient
 E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\SocketIoClientDotNet.dll
 E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\WebSocket4Net.dll
 E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\Newtonsoft.Json.xml
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Release\AsyncIO.dll
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\obj\Release\MovieCatalogLibrary.csprojResolveAssemblyReference.cache

@@ -17,3 +17,4 @@ E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Debug\Newtonsoft.Json.
 E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\obj\Debug\MovieCatalogLibrary.csprojResolveAssemblyReference.cache
 E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\obj\Debug\MovieCatalogLibrary.dll
 E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\obj\Debug\MovieCatalogLibrary.pdb
+E:\C#Projects\MovieCatalogLibrary\MovieCatalogLibrary\bin\Debug\AsyncIO.dll

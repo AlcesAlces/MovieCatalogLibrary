@@ -20,21 +20,10 @@ namespace MovieCatalogLibrary.Misc
             List<Movie> listToAdd = new List<Movie>();
             try
             {
-                foreach (var item in movies.payload.stuff)
+                foreach (dynamic item in movies.payload)
                 {
 
-                    Movie toAdd = new Movie()
-                    {
-                        name = item.name.Value,
-                        description = item.description.Value,
-                        genresCSV = item.genres.Value,
-                        mid = Int32.Parse(item.movieid.Value.ToString()),
-                        userRating = double.Parse(item.userrating.Value.ToString()),
-                        onlineRating = double.Parse(item.rating.Value.ToString()),
-                        poster = Int32.Parse(item.posternum.Value.ToString()),
-                        year = item.year.Value,
-                        imageLocation = item.image.Value
-                    };
+                    Movie toAdd = new Movie(item);
 
                     listToAdd.Add(toAdd);
                 }

@@ -41,6 +41,24 @@ namespace MovieCatalogLibrary
         }
 
         /// <summary>
+        /// From dynamic object.
+        /// </summary>
+        /// <param name="dyn"></param>
+        public Movie(dynamic item)
+        {
+            name = item.name.Value;
+            description = item.description.Value;
+            //TODO: FIX THIS!
+            //genresCSV = item.genres.Value;
+            mid = Int32.Parse(item.mid.Value.ToString());
+            userRating = double.Parse(item.userRating.Value.ToString());
+            onlineRating = double.Parse(item.onlineRating.Value.ToString());
+            poster = Int32.Parse(item.poster.Value.ToString());
+            year = item.year.Value;
+            imageLocation = item.imageLocation.Value;
+        }
+
+        /// <summary>
         /// Constructor to interface directly with the TMDB movie type.
         /// </summary>
         /// <param name="toSet"></param>
